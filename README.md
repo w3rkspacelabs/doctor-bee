@@ -1,6 +1,6 @@
 
 # Doctor Bee
-A simple python script to checkup a bee node's health status
+A simple python script to checkup a [bee node](https://github.com/ethersphere/bee)'s health status
 
 # Requirements
 The bee node's configuration must have `debug-api-enable` set to `true`
