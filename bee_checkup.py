@@ -104,7 +104,7 @@ out = {
     'lastWonRound': f"{lastWonRound} ({0 if lastWonRound == 0 else round - lastWonRound} {'- never' if lastWonRound == 0 else 'rounds ago'})",
     'lastFrozenRound': f"{lastFrozenRound} ({0 if lastFrozenRound == 0 else round - lastFrozenRound} {'- never' if lastFrozenRound == 0 else 'rounds ago'})",
     'lastSelectedRound': f"{lastSelectedRound} ({0 if lastSelectedRound == 0 else round - lastSelectedRound} {'- never' if lastSelectedRound == 0 else 'rounds ago'})",
-    'lastSampleDuration': f"{lastSampleDuration / 60000000000:.1f} m",
+    'lastSampleDuration': f"{lastSampleDuration / 60000000000:.1f} minutes",
     'block': block,
     'rewardsCollected': f"{format(float(reward) / 1e16, '.2f')} BZZ"
 }
