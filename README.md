@@ -1,6 +1,10 @@
 
 # Doctor Bee
-A simple python script to checkup bee health status
+A simple python script to checkup a bee node's health status
+
+# Requirements
+The bee node's configuration must have `debug-api-enable` set to `true`
+
 ## Usage
 ```
 git clone https://github.com/rampall/doctor_bee.git
