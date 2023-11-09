@@ -83,8 +83,8 @@ overlay = addresses_data['overlay']
 # Populate the output dictionary
 out = {
     'port': port,
-    'walletAddress': walletAddress,
-    'overlay': overlay,
+    'walletAddress': f"[link=https://gnosisscan.io/address/{walletAddress}]{walletAddress[0:6]}...{walletAddress[-4:]}[/link]",
+    'overlay': f"[link=https://swarmscan.io/nodes/{overlay}]{overlay[0:6]}...{overlay[-4:]}[/link]",
     'version': version.split('-')[0],
     'reserveSize': f"{(reserveSize * 4 * 512) / 1000 / 1000 / 1000:.3f} TB",
     'status': getBool(status == 'ok'),
