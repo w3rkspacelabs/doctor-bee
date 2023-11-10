@@ -7,8 +7,8 @@ The bee node's configuration must have `debug-api-enable` set to `true`
 
 ## Usage
 ```
-git clone https://github.com/rampall/doctor_bee.git
-cd doctor_bee
+git clone https://github.com/rampall/doctor-bee.git
+cd doctor-bee
 pip install -r requirements.txt
 python3 bee_checkup.py <BEE_DEBUG_PORT>
 ```
