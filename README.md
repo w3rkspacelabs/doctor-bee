@@ -13,7 +13,8 @@ pip install -r requirements.txt
 python3 bee_checkup.py <BEE_DEBUG_PORT>
 ```
 # Screenshot
-![image](https://github.com/rampall/doctor-bee/assets/520570/2b73afaf-b455-41c7-9f68-b7244fc77773)
+![image](https://github.com/rampall/doctor-bee/assets/520570/305a6735-a016-41bd-a9c1-5cabb57d437c)
+
 
 
 
