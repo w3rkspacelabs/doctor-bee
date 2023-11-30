@@ -10,11 +10,7 @@ The bee node's configuration must have `debug-api-enable` set to `true`
 git clone https://github.com/rampall/doctor-bee.git
 cd doctor-bee
 pip install -r requirements.txt
-python3 bee_checkup.py <BEE_DEBUG_PORT>
+python3 bee_checkup.py <BEE_DEBUG_API_URL>
 ```
 # Screenshot
-![image](https://github.com/rampall/doctor-bee/assets/520570/305a6735-a016-41bd-a9c1-5cabb57d437c)
-
-
-
-
+![image](https://github.com/rampall/doctor-bee/assets/520570/56707864-1ff1-429d-80da-9f61135447e6)
