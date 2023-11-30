@@ -1,16 +1,18 @@
+import re
 import sys
 import requests
-from rich.console import Console
-from rich.table import Table
-from rich import print
 from datetime import datetime
+
+from rich import print
+from rich.table import Table
+from rich.console import Console
 
 if len(sys.argv) < 2:
     print("Error: debug port is required.")
-    print("USAGE: [cyan]python3 bee_checkup.py <BEE_DEBUG_PORT>[/cyan]")
+    print("USAGE: [cyan]python3 bee_checkup.py <BEE_DEBUG_API_URL>[/cyan]")
     sys.exit(1)
 
-port = sys.argv[1]
+bee_debug_api_url = sys.argv[1].rstrip("/")
 
 def get_bool(b, add_yn=False):
     out = "✅" if b else "❌"
@@ -37,17 +39,13 @@ def hex_to_group(hex_string, depth):
     group = value // (2 ** (16 - depth))  # Calculate the group based on depth
     return group
 
-def process_overlay(overlay, depth):
-    group = hex_to_group(overlay, depth)
-    return group
-
 console = Console()
 latest_bee = requests.get(
     "https://api.github.com/repos/ethersphere/bee/releases/latest"
 ).json()["tag_name"][1:]
 
 # Fetch rstatus
-rstatus_url = f"http://localhost:{port}/status"
+rstatus_url = f"{bee_debug_api_url}/status"
 
 try:
     rstatus_data = requests.get(rstatus_url).json()
@@ -64,7 +62,7 @@ pullsyncRate = rstatus_data["pullsyncRate"]
 connectedPeers = rstatus_data["connectedPeers"]
 
 # Fetch redistribution state
-redistributionstate_url = f"http://localhost:{port}/redistributionstate"
+redistributionstate_url = f"{bee_debug_api_url}/redistributionstate"
 redistributionstate_data = requests.get(redistributionstate_url).json()
 hasSufficientFunds = redistributionstate_data["hasSufficientFunds"]
 isFullySynced = redistributionstate_data["isFullySynced"]
@@ -80,37 +78,37 @@ block = redistributionstate_data["block"]
 reward = redistributionstate_data["reward"]
 
 # Fetch topology
-topology_url = f"http://localhost:{port}/topology"
+topology_url = f"{bee_debug_api_url}/topology"
 topology_data = requests.get(topology_url).json()
 depth = topology_data["depth"]
 reachability = topology_data["reachability"]
 
 # Fetch stake
-stake_url = f"http://localhost:{port}/stake"
+stake_url = f"{bee_debug_api_url}/stake"
 stake_data = requests.get(stake_url).json()
 stakedAmount = float(stake_data["stakedAmount"]) / 10**16
 
 # Fetch reservestate
-reservestate_url = f"http://localhost:{port}/reservestate"
+reservestate_url = f"{bee_debug_api_url}/reservestate"
 reservestate_data = requests.get(reservestate_url).json()
 radius = reservestate_data["radius"]
 storageRadius = reservestate_data["storageRadius"]
 
 # Fetch wallet
-wallet_url = f"http://localhost:{port}/wallet"
+wallet_url = f"{bee_debug_api_url}/wallet"
 wallet_data = requests.get(wallet_url).json()
 bzzBalance = round((float(wallet_data["bzzBalance"]) / 10**16), 2)
 nativeTokenBalance = round((float(wallet_data["nativeTokenBalance"]) / 10**18), 2)
 walletAddress = wallet_data["walletAddress"]
 
 # Fetch health
-health_url = f"http://localhost:{port}/health"
+health_url = f"{bee_debug_api_url}/health"
 health_data = requests.get(health_url).json()
 version = health_data["version"].split("-")[0]
 status = health_data["status"]
 
 # Fetch addresses
-addresses_url = f"http://localhost:{port}/addresses"
+addresses_url = f"{bee_debug_api_url}/addresses"
 addresses_data = requests.get(addresses_url).json()
 overlay = addresses_data["overlay"]
 
@@ -119,7 +117,7 @@ swarmscan_data = requests.get(f"https://swarmscan.io/i/network/nodes/{overlay}")
 swarmscan_neighborhoods = requests.get("https://swarmscan.io/i/network/neighborhoods").json()
 network_depth = swarmscan_neighborhoods["depth"]
 neighborhood_count = swarmscan_neighborhoods["neighborhoodCount"]
-nbhood = hex_to_group(overlay, depth)
+nbhood = hex_to_group(overlay, network_depth)
 
 hint = {
     "[cyan]NODE[/cyan]": "",
@@ -181,7 +179,7 @@ row = {
     "[cyan]NODE[/cyan]": "",
     "Wallet": f"{walletAddress[2:5]}...{walletAddress[-3:]}",
     "Overlay": f"{overlay[0:3]}...{overlay[-3:]}",
-    "Neighborhood": f"{bin(nbhood)[2:].rjust(depth,'0')} (#{nbhood}/{neighborhood_count})",
+    "Neighborhood": f"{bin(nbhood)[2:].rjust(network_depth,'0')} (#{nbhood}/{neighborhood_count})",
     "Version": f"✅ {version}" if version == latest_bee else f"🟡 {version}",
     "Bee Mode": f"✅ {beeMode}" if beeMode == "full" else "🟡 {beeMode}",
     "Connected Peers": f"✅ {connectedPeers}" if connectedPeers > 149 else f"🟡 {connectedPeers}",
@@ -191,8 +189,8 @@ row = {
     "Is Fully Synced": get_bool(isFullySynced, True),
     "Not Frozen": get_bool(isFrozen == False, True),
     "Reachable": get_bool(reachability, True),
-    "Depth": f"✅ {depth}" if depth == 10 else f"🟡 {depth}",
-    "Storage Radius": f"✅ {storageRadius}" if storageRadius == 10 else f"🟡 {storageRadius}",
+    "Depth": f"✅ {depth}" if depth == network_depth else f"🟡 {depth}",
+    "Storage Radius": f"✅ {storageRadius}" if storageRadius == network_depth else f"🟡 {storageRadius}",
     "Staked Amount": f"✅ {stakedAmount} BZZ" if stakedAmount >= 10 else f"🟡 {stakedAmount} BZZ",
     "xDAI": f"✅ {nativeTokenBalance} xDAI" if nativeTokenBalance >= 0.1 else f"🟡 {nativeTokenBalance} xDAI",
     "xBZZ": f"✅ {bzzBalance} xBZZ" if bzzBalance >= 1 else f"🟡 {bzzBalance} xBZZ",
@@ -239,13 +237,14 @@ table.add_row(
     f"🔗 [link=https://swarmscan.io/nodes/{overlay}]Swarmscan Link[/link] - Node",
 )
 table.add_section()
+rgx = r':\d+' # regex to match port number in url
 table.add_row(
     "[cyan]PERFORMANCE[/cyan]", "", "",
     "\n".join([
         "🔗 [link=https://docs.ethswarm.org/docs/bee/working-with-bee/staking#check-node-performance]Check Node Performance[/link]",
         "To check hardware performance, run:",
-        f"[yellow]curl -X GET http://localhost:<BEE-API-PORT>/rchash/{network_depth}/aaaaaa | jq[/yellow]",
+        f"[yellow]curl -X GET { re.sub(rgx,':<BEE-DEBUG-PORT>', bee_debug_api_url) }/rchash/{network_depth}/aaaaaa | jq[/yellow]",
         "In the JSON response, the [yellow]Time[/yellow] duration should be less than [yellow]6[/yellow] minutes.",
     ]),
-)   
+)
 console.print(table)
