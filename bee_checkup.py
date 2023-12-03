@@ -51,10 +51,14 @@ try:
     rstatus_data = requests.get(rstatus_url).json()
 except:
     print(
-        f"[red]Error: Could not connect to [cyan]Bee node[/cyan] at debug port [cyan]{port}[/cyan].[/red]"
+        f"[red]Error: Could not connect to [cyan]Bee node[/cyan] at [cyan]{bee_debug_api_url}[/cyan].[/red]"
     )
     sys.exit(1)
-
+if "code" in rstatus_data and rstatus_data["code"] == 400 and rstatus_data["message"] == 'operation not supported in dev mode':
+    print(
+        f"[red]Cannot create report: [cyan]Bee node[/cyan] at [cyan]{bee_debug_api_url}[/cyan] is running in [cyan]dev mode[/cyan].[/red]"
+    )
+    sys.exit(1)
 reserveSize = rstatus_data["reserveSize"]
 neighborhoodSize = rstatus_data["neighborhoodSize"]
 beeMode = rstatus_data["beeMode"]
@@ -121,52 +125,52 @@ nbhood = hex_to_group(overlay, network_depth)
 
 hint = {
     "[cyan]NODE[/cyan]": "",
-    "Wallet": f"🔗 [link=https://gnosisscan.io/address/{walletAddress}]Gnosisscan Link[/link]",
-    "Overlay": f"🔗 [link=https://swarmscan.io/nodes/{overlay}]Swarmscan Link[/link] - Node",
-    "Neighborhood": "🔗 [link=https://swarmscan.io/neighborhoods]Swarmscan Link[/link] - Neighborhoods",
-    "Version": " " if version == latest_bee else f"[yellow]{latest_bee} is available[/yellow]",
-    "Bee Mode": "🔗 [link=https://docs.ethswarm.org/docs/bee/installation/install#full-nodes]Full, Light & Ultralight mode[/link]",
+    "Wallet": f"🔗 [cyan][link=https://gnosisscan.io/address/{walletAddress}]Gnosisscan Link[/link][/cyan]",
+    "Overlay": f"🔗 [cyan][link=https://swarmscan.io/nodes/{overlay}]Swarmscan Link - Node[/link][/cyan]",
+    "Neighborhood": "🔗 [cyan][link=https://swarmscan.io/neighborhoods]Swarmscan Link - Neighborhoods[/link][/cyan]",
+    "Version": " " if version == latest_bee else f"[magenta]{latest_bee} is available[/magenta]",
+    "Bee Mode": "🔗 [cyan][link=https://docs.ethswarm.org/docs/bee/installation/install#full-nodes]Full, Light & Ultralight mode[/link][/cyan]",
     "Connected Peers": "".join([
-        "🛈 Should be [yellow]150+[/yellow] peers",
-        " 🔗 [link=https://docs.ethswarm.org/docs/learn/faq#what-determines-the-number-of-peers-and-how-to-influence-their-number-why-are-there-sometimes-300-peers-and-sometimes-30]Connected Peers[/link]",
-        " | [link=https://docs.ethswarm.org/docs/learn/faq#connectivity]Connectivity[/link]"
+        "🟦 Should be [magenta]150+[/magenta] peers",
+        " 🔗 [cyan][link=https://docs.ethswarm.org/docs/learn/faq#what-determines-the-number-of-peers-and-how-to-influence-their-number-why-are-there-sometimes-300-peers-and-sometimes-30]Connected Peers[/link][/cyan]",
+        " | [cyan][link=https://docs.ethswarm.org/docs/learn/faq#connectivity]Connectivity[/link][/cyan]"
         ]),
-    "Pullsync Rate": '🔗 [link=https://docs.ethswarm.org/docs/learn/technology/disc#push-sync-pull-sync-and-retrieval-protocols]Pull Sync[/link]',
+    "Pullsync Rate": '🔗 [cyan][link=https://docs.ethswarm.org/docs/learn/technology/disc#push-sync-pull-sync-and-retrieval-protocols]Pull Sync[/link][/cyan]',
     "Status": "",
-    "Has Sufficient Funds": "🔗 [link=https://docs.ethswarm.org/docs/bee/installation/fund-your-node]Fund Your Node[/link]",
-    "Is Fully Synced": "🛈 Takes a [yellow]few hours upto a day[/yellow] upon startup",
+    "Has Sufficient Funds": "🔗 [cyan][link=https://docs.ethswarm.org/docs/bee/installation/fund-your-node]Fund Your Node[/link][/cyan]",
+    "Is Fully Synced": "🟦 Takes a [magenta]few hours upto a day[/magenta] upon startup",
     "Not Frozen": "".join([
-        "🛈 Freeze duration depends on the current depth",
-        f" | [yellow]~ { round((152 * (2 ** depth)*5)/(60*60*24))} days[/yellow] at depth [yellow]{depth}[/yellow]",
-        " 🔗 [link=https://docs.ethswarm.org/docs/learn/technology/incentives#penalties]Penalties[/link]",
+        "🟦 Freeze duration depends on the current depth",
+        f" | [magenta]~ { round((152 * (2 ** depth)*5)/(60*60*24))} days[/magenta] at depth [magenta]{depth}[/magenta]",
+        " 🔗 [cyan][link=https://docs.ethswarm.org/docs/learn/technology/incentives#penalties]Penalties[/link][/cyan]",
     ]),
-    "Reachable": "🔗 [link=https://docs.ethswarm.org/docs/bee/installation/connectivity]Connectivity[/link]",
-    "Depth": "🔗 [link=https://docs.ethswarm.org/docs/learn/glossary#2-area-of-responsibility-related-depths]Depth[/link]",
-    "Storage Radius": f"🛈 Should be [yellow]{network_depth}[/yellow]",
+    "Reachable": "🔗 [cyan][link=https://docs.ethswarm.org/docs/bee/installation/connectivity]Connectivity[/link][/cyan]",
+    "Depth": "🔗 [cyan][link=https://docs.ethswarm.org/docs/learn/glossary#2-area-of-responsibility-related-depths]Depth[/link][/cyan]",
+    "Storage Radius": f"🟦 Should be [magenta]{network_depth}[/magenta]",
     "Staked Amount": "".join([
-        "🔗 [link=https://docs.ethswarm.org/docs/bee/working-with-bee/staking]Staking[/link]",
-        " | [link=https://docs.ethswarm.org/docs/bee/working-with-bee/staking#maximizing-staking-rewards]Maximizing Staking Rewards[/link]",
+        "🔗 [cyan][link=https://docs.ethswarm.org/docs/bee/working-with-bee/staking]Staking[/link][/cyan]",
+        " | [cyan][link=https://docs.ethswarm.org/docs/bee/working-with-bee/staking#maximizing-staking-rewards]Maximizing Staking Rewards[/link][/cyan]",
     ]),
     "xDAI": "".join([
-        "🛈 Minimum [yellow]0.1 xDAI[/yellow] recommended",
-        " 🔗 [link=https://docs.ethswarm.org/docs/bee/installation/fund-your-node]Fund Your Node[/link]",
-        " | [link=https://docs.ethswarm.org/docs/learn/tokens#xdai]xDAI[/link]",
+        "🟦 Minimum [magenta]0.1 xDAI[/magenta] recommended",
+        " 🔗 [cyan][link=https://docs.ethswarm.org/docs/bee/installation/fund-your-node]Fund Your Node[/link][/cyan]",
+        " | [cyan][link=https://docs.ethswarm.org/docs/learn/tokens#xdai]xDAI[/link][/cyan]",
     ]),
     "xBZZ": "".join([
-        "🛈 Minimum [yellow]1 xBZZ[/yellow] recommended ",
-        "🔗 [link=https://docs.ethswarm.org/docs/bee/installation/fund-your-node]Fund Your Node[/link]",
-        " | [link=https://docs.ethswarm.org/docs/learn/tokens#xbzz]xBZZ[/link]",
+        "🟦 Minimum [magenta]1 xBZZ[/magenta] recommended ",
+        "🔗 [cyan][link=https://docs.ethswarm.org/docs/bee/installation/fund-your-node]Fund Your Node[/link][/cyan]",
+        " | [cyan][link=https://docs.ethswarm.org/docs/learn/tokens#xbzz]xBZZ[/link][/cyan]",
     ]),
     "Neighborhood Size": " | ".join([
-        # "Typically more than [yellow]4[/yellow] nodes",
-        "🔗 [link=https://docs.ethswarm.org/docs/learn/technology/disc#neighborhoods]Neighborhoods[/link]",
-        "[link=https://docs.ethswarm.org/docs/bee/working-with-bee/staking#neighborhood-selection]Neighborhood Selection[/link]",
-        "[link=https://docs.ethswarm.org/docs/bee/installation/install#set-target-neighborhood-optional]Set Target Neighborhood[/link]",
-        "[link=https://swarmscan.io/neighborhoods]Swarmscan[/link]",
+        # "Typically more than [magenta]4[/magenta] nodes",
+        "🔗 [cyan][link=https://docs.ethswarm.org/docs/learn/technology/disc#neighborhoods]Neighborhoods[/link][/cyan]",
+        "[cyan][link=https://docs.ethswarm.org/docs/bee/working-with-bee/staking#neighborhood-selection]Neighborhood Selection[/link][/cyan]",
+        "[cyan][link=https://docs.ethswarm.org/docs/bee/installation/install#set-target-neighborhood-optional]Set Target Neighborhood[/link][/cyan]",
+        "[cyan][link=https://swarmscan.io/neighborhoods]Swarmscan[/link][/cyan]",
     ]),
     "Reserve Size": "",
     "[cyan]LOTTERY[/cyan]": "",
-    "Current Round": "🔗 [link=https://docs.ethswarm.org/docs/learn/technology/incentives#storage-incentives-details]Storage Incentives[/link]",
+    "Current Round": "🔗 [cyan][link=https://docs.ethswarm.org/docs/learn/technology/incentives#storage-incentives-details]Storage Incentives[/link][/cyan]",
     "Playing Current Round": "",
     "Last Won Round": '',
     "Last Frozen Round": '',
@@ -195,7 +199,7 @@ row = {
     "xDAI": f"✅ {nativeTokenBalance} xDAI" if nativeTokenBalance >= 0.1 else f"🟡 {nativeTokenBalance} xDAI",
     "xBZZ": f"✅ {bzzBalance} xBZZ" if bzzBalance >= 1 else f"🟡 {bzzBalance} xBZZ",
     "Neighborhood Size": neighborhoodSize,
-    "Reserve Size": f"{(reserveSize * 4 * 512) / 1000 / 1000 / 1000:.3f} TB / {reserveSize} chunks",
+    "Reserve Size": f"{(reserveSize * 4 * 512) / 1000 / 1000 / 1000:.3f} TB ({reserveSize} chunks)",
     "[cyan]LOTTERY[/cyan]": "",
     "Current Round": current_round,
     "Playing Current Round": "🟡 Yes" if lastPlayedRound == current_round else "No",
@@ -211,7 +215,7 @@ table = Table(show_header=True, header_style="bold magenta")
 table.add_column("Section")
 table.add_column("Key")
 table.add_column("Value")
-table.add_column("Hint / Links")
+table.add_column("Additional Info")
 
 for key, value in row.items():
     if value == "":
@@ -234,17 +238,17 @@ table.add_section()
 table.add_row(
     "[cyan]AVAILABILITY[/cyan]", "", 
     "\n" + availability_string.strip(), 
-    f"🔗 [link=https://swarmscan.io/nodes/{overlay}]Swarmscan Link[/link] - Node",
+    f"🔗 [cyan][link=https://swarmscan.io/nodes/{overlay}]Swarmscan Link - Node[/link][/cyan]",
 )
 table.add_section()
 rgx = r':\d+' # regex to match port number in url
 table.add_row(
-    "[cyan]PERFORMANCE[/cyan]", "", "",
+    "[cyan]PERFORMANCE[/cyan]", "N/A", "N/A",
     "\n".join([
-        "🔗 [link=https://docs.ethswarm.org/docs/bee/working-with-bee/staking#check-node-performance]Check Node Performance[/link]",
+        "🔗 [cyan][link=https://docs.ethswarm.org/docs/bee/working-with-bee/staking#check-node-performance]Check Node Performance[/link][/cyan]",
         "To check hardware performance, run:",
-        f"[yellow]curl -X GET { re.sub(rgx,':<BEE-DEBUG-PORT>', bee_debug_api_url) }/rchash/{network_depth}/aaaaaa | jq[/yellow]",
-        "In the JSON response, the [yellow]Time[/yellow] duration should be less than [yellow]6[/yellow] minutes.",
+        f"> [yellow]curl -X GET { re.sub(rgx,':<BEE-DEBUG-PORT>', bee_debug_api_url) }/rchash/{network_depth}/aaaaaa | jq[/yellow]",
+        "In the JSON response, the value of [magenta]Duration[/magenta] should be less than [magenta]6[/magenta] minutes ([magenta]360000000000[/magenta] nanoseconds).",
     ]),
 )
 console.print(table)
