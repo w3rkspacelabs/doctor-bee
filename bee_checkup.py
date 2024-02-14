@@ -60,10 +60,15 @@ if "code" in rstatus_data and rstatus_data["code"] == 400 and rstatus_data["mess
     )
     sys.exit(1)
 reserveSize = rstatus_data["reserveSize"]
-neighborhoodSize = rstatus_data["neighborhoodSize"]
+
 beeMode = rstatus_data["beeMode"]
 pullsyncRate = rstatus_data["pullsyncRate"]
 connectedPeers = rstatus_data["connectedPeers"]
+
+# Fetch status/peers 
+peers_url = f"{bee_debug_api_url}/status/peers"
+peers_data = requests.get(peers_url).json()
+neighborhoodSize = peers_data["snapshots"][-1]["neighborhoodSize"]
 
 # Fetch redistribution state
 redistributionstate_url = f"{bee_debug_api_url}/redistributionstate"
@@ -199,7 +204,7 @@ row = {
     "xDAI": f"✅ {nativeTokenBalance} xDAI" if nativeTokenBalance >= 0.1 else f"🟡 {nativeTokenBalance} xDAI",
     "xBZZ": f"✅ {bzzBalance} xBZZ" if bzzBalance >= 1 else f"🟡 {bzzBalance} xBZZ",
     "Neighborhood Size": neighborhoodSize,
-    "Reserve Size": f"{(reserveSize * 4 * 512) / 1000 / 1000 / 1000:.3f} TB ({reserveSize} chunks)",
+    "Reserve Size": f"{(reserveSize * 4) / 1000 / 1000 :.3f} GB ({reserveSize} chunks)",
     "[cyan]LOTTERY[/cyan]": "",
     "Current Round": current_round,
     "Playing Current Round": "🟡 Yes" if lastPlayedRound == current_round else "No",
@@ -247,7 +252,7 @@ table.add_row(
     "\n".join([
         "🔗 [cyan][link=https://docs.ethswarm.org/docs/bee/working-with-bee/staking#check-node-performance]Check Node Performance[/link][/cyan]",
         "To check hardware performance, run:",
-        f"> [yellow]curl -X GET { re.sub(rgx,':<BEE-DEBUG-PORT>', bee_debug_api_url) }/rchash/{network_depth}/aaaaaa | jq[/yellow]",
+        f"> [yellow]curl -X GET { bee_debug_api_url }/rchash/{network_depth}/aaaa/aaaa | jq[/yellow]",
         "In the JSON response, the value of [magenta]Duration[/magenta] should be less than [magenta]6[/magenta] minutes ([magenta]360000000000[/magenta] nanoseconds).",
     ]),
 )
