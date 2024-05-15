@@ -200,7 +200,7 @@ row = {
     "Reachable": get_bool(reachability, True),
     "Depth": f"✅ {depth}" if depth == network_depth else f"🟡 {depth}",
     "Storage Radius": f"✅ {storageRadius}" if storageRadius == network_depth else f"🟡 {storageRadius}",
-    "Staked Amount": f"✅ {stakedAmount} BZZ" if stakedAmount >= 10 else f"🟡 {stakedAmount} BZZ",
+    "Staked Amount": f"✅ {stakedAmount} xBZZ" if stakedAmount >= 10 else f"🟡 {stakedAmount} BZZ",
     "xDAI": f"✅ {nativeTokenBalance} xDAI" if nativeTokenBalance >= 0.1 else f"🟡 {nativeTokenBalance} xDAI",
     "xBZZ": f"✅ {bzzBalance} xBZZ" if bzzBalance >= 1 else f"🟡 {bzzBalance} xBZZ",
     "Neighborhood Size": neighborhoodSize,
