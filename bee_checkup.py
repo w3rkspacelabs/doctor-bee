@@ -7,12 +7,14 @@ from rich import print
 from rich.table import Table
 from rich.console import Console
 
-if len(sys.argv) < 2:
-    print("Error: debug port is required.")
-    print("USAGE: [cyan]python3 bee_checkup.py <BEE_DEBUG_API_URL>[/cyan]")
-    sys.exit(1)
+# if len(sys.argv) < 2:
+#     print("Error: debug port is required.")
+#     print("USAGE: [cyan]python3 bee_checkup.py <BEE_DEBUG_API_URL>[/cyan]")
+#     sys.exit(1)
 
-bee_debug_api_url = sys.argv[1].rstrip("/")
+bee_debug_api_url = sys.argv[1].rstrip("/") if len(sys.argv) > 1 else ""
+if not bee_debug_api_url:
+    bee_debug_api_url = "http://localhost:1635"
 
 def get_bool(b, add_yn=False):
     out = "✅" if b else "❌"
@@ -70,22 +72,37 @@ peers_url = f"{bee_debug_api_url}/status/peers"
 peers_data = requests.get(peers_url).json()
 neighborhoodSize = peers_data["snapshots"][-1]["neighborhoodSize"]
 
+NA_NFM = "N.A (except in Full Mode)"
 # Fetch redistribution state
-redistributionstate_url = f"{bee_debug_api_url}/redistributionstate"
-redistributionstate_data = requests.get(redistributionstate_url).json()
-hasSufficientFunds = redistributionstate_data["hasSufficientFunds"]
-isFullySynced = redistributionstate_data["isFullySynced"]
-isFrozen = redistributionstate_data["isFrozen"]
-lastPlayedRound = redistributionstate_data["lastPlayedRound"]
-current_round = redistributionstate_data["round"]
-phase = redistributionstate_data["phase"]
-lastWonRound = redistributionstate_data["lastWonRound"]
-lastFrozenRound = redistributionstate_data["lastFrozenRound"]
-lastSelectedRound = redistributionstate_data["lastSelectedRound"]
-lastSampleDuration = redistributionstate_data["lastSampleDuration"]
-block = redistributionstate_data["block"]
-reward = redistributionstate_data["reward"]
-
+print(beeMode)
+if(beeMode == 'full'):
+    redistributionstate_url = f"{bee_debug_api_url}/redistributionstate"
+    redistributionstate_data = requests.get(redistributionstate_url).json()
+    hasSufficientFunds = redistributionstate_data["hasSufficientFunds"]
+    isFullySynced = redistributionstate_data["isFullySynced"]
+    isFrozen = redistributionstate_data["isFrozen"]
+    lastPlayedRound = redistributionstate_data["lastPlayedRound"]
+    current_round = redistributionstate_data["round"]
+    phase = redistributionstate_data["phase"]
+    lastWonRound = redistributionstate_data["lastWonRound"]
+    lastFrozenRound = redistributionstate_data["lastFrozenRound"]
+    lastSelectedRound = redistributionstate_data["lastSelectedRound"]
+    lastSampleDuration = redistributionstate_data["lastSampleDuration"]
+    block = redistributionstate_data["block"]
+    reward = redistributionstate_data["reward"]
+else:
+    hasSufficientFunds = NA_NFM
+    isFullySynced = NA_NFM
+    isFrozen = ""
+    lastPlayedRound = 0
+    current_round = NA_NFM
+    phase = NA_NFM
+    lastWonRound = 0
+    lastFrozenRound = 0
+    lastSelectedRound = 0
+    lastSampleDuration = 0
+    block = NA_NFM
+    reward = NA_NFM
 # Fetch topology
 topology_url = f"{bee_debug_api_url}/topology"
 topology_data = requests.get(topology_url).json()
@@ -100,6 +117,7 @@ stakedAmount = float(stake_data["stakedAmount"]) / 10**16
 # Fetch reservestate
 reservestate_url = f"{bee_debug_api_url}/reservestate"
 reservestate_data = requests.get(reservestate_url).json()
+print(reservestate_data)
 radius = reservestate_data["radius"]
 storageRadius = reservestate_data["storageRadius"]
 
@@ -190,29 +208,29 @@ row = {
     "Overlay": f"{overlay[0:3]}...{overlay[-3:]}",
     "Neighborhood": f"{bin(nbhood)[2:].rjust(network_depth,'0')} (#{nbhood}/{neighborhood_count})",
     "Version": f"✅ {version}" if version == latest_bee else f"🟡 {version}",
-    "Bee Mode": f"✅ {beeMode}" if beeMode == "full" else "🟡 {beeMode}",
+    "Bee Mode": f"✅ {beeMode}" if beeMode == "full" else f"🟡 {beeMode}",
     "Connected Peers": f"✅ {connectedPeers}" if connectedPeers > 149 else f"🟡 {connectedPeers}",
     "Pullsync Rate": f"✅ 0 (Synced)" if pullsyncRate == 0 else f"🟡 {pullsyncRate} (Syncing)",
     "Status": f"{get_bool(status == 'ok')} {status}",
     "Has Sufficient Funds": get_bool(hasSufficientFunds, True),
     "Is Fully Synced": get_bool(isFullySynced, True),
-    "Not Frozen": get_bool(isFrozen == False, True),
+    "Not Frozen": get_bool(isFrozen == False, True) if beeMode == 'full' else "✅",
     "Reachable": get_bool(reachability, True),
     "Depth": f"✅ {depth}" if depth == network_depth else f"🟡 {depth}",
-    "Storage Radius": f"✅ {storageRadius}" if storageRadius == network_depth else f"🟡 {storageRadius}",
-    "Staked Amount": f"✅ {stakedAmount} xBZZ" if stakedAmount >= 10 else f"🟡 {stakedAmount} BZZ",
+    "Storage Radius": f"✅ {storageRadius}" if storageRadius == network_depth else f"🟡 {storageRadius}" if beeMode == 'full' else NA_NFM,
+    "Staked Amount": f"✅ {stakedAmount} xBZZ" if stakedAmount >= 10 else f"🟡 {stakedAmount} BZZ" if beeMode == 'full' else NA_NFM,
     "xDAI": f"✅ {nativeTokenBalance} xDAI" if nativeTokenBalance >= 0.1 else f"🟡 {nativeTokenBalance} xDAI",
     "xBZZ": f"✅ {bzzBalance} xBZZ" if bzzBalance >= 1 else f"🟡 {bzzBalance} xBZZ",
     "Neighborhood Size": neighborhoodSize,
     "Reserve Size": f"{(reserveSize * 4) / 1000 / 1000 :.3f} GB ({reserveSize} chunks)",
     "[cyan]LOTTERY[/cyan]": "",
     "Current Round": current_round,
-    "Playing Current Round": "🟡 Yes" if lastPlayedRound == current_round else "No",
-    "Last Won Round": f"{'Not Yet' if lastWonRound == 0 else current_round - lastWonRound}{'' if lastWonRound == 0 else ' rounds ago'} ({lastWonRound})",
-    "Last Frozen Round": f"{'Not Yet' if lastFrozenRound == 0 else current_round - lastFrozenRound}{'' if lastFrozenRound == 0 else ' rounds ago'} ({lastFrozenRound})",
-    "Last Selected Round": f"{'Not Yet' if lastSelectedRound == 0 else current_round - lastSelectedRound}{'' if lastSelectedRound == 0 else ' rounds ago'} ({lastSelectedRound})",
-    "Last Sample Duration": f"{lastSampleDuration / 60000000000:.1f} minutes"  if lastSampleDuration > 0  else "Not Yet (0)",
-    "Rewards Collected": f"{format(float(reward) / 1e16, '.2f')} BZZ",
+    "Playing Current Round": ("🟡 Yes" if lastPlayedRound == current_round else "No") if beeMode == 'full' else NA_NFM,
+    "Last Won Round": f"{'Not Yet' if lastWonRound == 0 else current_round - lastWonRound}{'' if lastWonRound == 0 else ' rounds ago'} ({lastWonRound})"  if beeMode == 'full' else NA_NFM,
+    "Last Frozen Round": f"{'Not Yet' if lastFrozenRound == 0 else current_round - lastFrozenRound}{'' if lastFrozenRound == 0 else ' rounds ago'} ({lastFrozenRound})" if beeMode == 'full' else NA_NFM,
+    "Last Selected Round": f"{'Not Yet' if lastSelectedRound == 0 else current_round - lastSelectedRound}{'' if lastSelectedRound == 0 else ' rounds ago'} ({lastSelectedRound})" if beeMode == 'full' else NA_NFM,
+    "Last Sample Duration": f"{lastSampleDuration / 60000000000:.1f} minutes"  if lastSampleDuration > 0  else "Not Yet (0)" if beeMode == 'full' else NA_NFM,
+    "Rewards Collected": f"{format(float(reward) / 1e16, '.2f')} BZZ" if beeMode == 'full' else NA_NFM,
 }
 
 table = Table(show_header=True, header_style="bold magenta")
@@ -248,7 +266,7 @@ table.add_row(
 table.add_section()
 rgx = r':\d+' # regex to match port number in url
 table.add_row(
-    "[cyan]PERFORMANCE[/cyan]", "N/A", "N/A",
+    "[cyan]PERFORMANCE[/cyan]", NA_NFM, NA_NFM,
     "\n".join([
         "🔗 [cyan][link=https://docs.ethswarm.org/docs/bee/working-with-bee/staking#check-node-performance]Check Node Performance[/link][/cyan]",
         "To check hardware performance, run:",
