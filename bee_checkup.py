@@ -7,11 +7,6 @@ from rich import print
 from rich.table import Table
 from rich.console import Console
 
-# if len(sys.argv) < 2:
-#     print("Error: debug port is required.")
-#     print("USAGE: [cyan]python3 bee_checkup.py <BEE_DEBUG_API_URL>[/cyan]")
-#     sys.exit(1)
-
 bee_debug_api_url = sys.argv[1].rstrip("/") if len(sys.argv) > 1 else ""
 if not bee_debug_api_url:
     bee_debug_api_url = "http://localhost:1635"
@@ -74,7 +69,7 @@ neighborhoodSize = peers_data["snapshots"][-1]["neighborhoodSize"]
 
 NA_NFM = "N.A (except in Full Mode)"
 # Fetch redistribution state
-print(beeMode)
+
 if(beeMode == 'full'):
     redistributionstate_url = f"{bee_debug_api_url}/redistributionstate"
     redistributionstate_data = requests.get(redistributionstate_url).json()
@@ -117,7 +112,6 @@ stakedAmount = float(stake_data["stakedAmount"]) / 10**16
 # Fetch reservestate
 reservestate_url = f"{bee_debug_api_url}/reservestate"
 reservestate_data = requests.get(reservestate_url).json()
-print(reservestate_data)
 radius = reservestate_data["radius"]
 storageRadius = reservestate_data["storageRadius"]
 
