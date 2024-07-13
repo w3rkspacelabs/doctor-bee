@@ -13,4 +13,4 @@ pip install -r requirements.txt
 python3 bee_checkup.py <BEE_DEBUG_API_URL>
 ```
 # Screenshot
-![image](https://github.com/rampall/doctor-bee/assets/520570/1f28b184-f046-43df-9e19-f1c94aea8b15)
+![image](https://github.com/user-attachments/assets/46b0e533-3457-402d-a2da-6d1be2c3e55a)
