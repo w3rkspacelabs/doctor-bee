@@ -13,4 +13,5 @@ pip install -r requirements.txt
 python3 bee_checkup.py <BEE_DEBUG_API_URL>
 ```
 # Screenshot
-![image](https://github.com/user-attachments/assets/46b0e533-3457-402d-a2da-6d1be2c3e55a)
+![image](https://github.com/user-attachments/assets/535ffdb3-fe8c-4105-b684-afffba039df6)
+
