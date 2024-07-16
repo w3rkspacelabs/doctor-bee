@@ -56,7 +56,8 @@ if "code" in rstatus_data and rstatus_data["code"] == 400 and rstatus_data["mess
         f"[red]Cannot create report: [cyan]Bee node[/cyan] at [cyan]{bee_debug_api_url}[/cyan] is running in [cyan]dev mode[/cyan].[/red]"
     )
     sys.exit(1)
-reserveSize = rstatus_data["reserveSize"]
+reserveSize = rstatus_data["reserveSizeWithinRadius"]
+maxReserveSize = rstatus_data["reserveSize"]
 
 beeMode = rstatus_data["beeMode"]
 pullsyncRate = rstatus_data["pullsyncRate"]
@@ -260,7 +261,7 @@ table.add_row(
 table.add_section()
 rgx = r':\d+' # regex to match port number in url
 table.add_row(
-    "[cyan]PERFORMANCE[/cyan]", NA_NFM, NA_NFM,
+    "[cyan]PERFORMANCE[/cyan]", "" if beeMode == 'full' else NA_NFM, "" if beeMode == 'full' else NA_NFM,
     "\n".join([
         "🔗 [cyan][link=https://docs.ethswarm.org/docs/bee/working-with-bee/staking#check-node-performance]Check Node Performance[/link][/cyan]",
         "To check hardware performance, run:",
