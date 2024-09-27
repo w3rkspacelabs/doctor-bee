@@ -9,7 +9,7 @@ from rich.console import Console
 
 bee_debug_api_url = sys.argv[1].rstrip("/") if len(sys.argv) > 1 else ""
 if not bee_debug_api_url:
-    bee_debug_api_url = "http://localhost:1635"
+    bee_debug_api_url = "http://localhost:1633"
 
 def get_bool(b, add_yn=False):
     out = "✅" if b else "❌"
