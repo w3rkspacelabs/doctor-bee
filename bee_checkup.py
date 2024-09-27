@@ -83,7 +83,7 @@ if(beeMode == 'full'):
     lastWonRound = redistributionstate_data["lastWonRound"]
     lastFrozenRound = redistributionstate_data["lastFrozenRound"]
     lastSelectedRound = redistributionstate_data["lastSelectedRound"]
-    lastSampleDuration = redistributionstate_data["lastSampleDuration"]
+    lastSampleDuration = redistributionstate_data["lastSampleDurationSeconds"]
     block = redistributionstate_data["block"]
     reward = redistributionstate_data["reward"]
 else:
@@ -224,7 +224,7 @@ row = {
     "Last Won Round": f"{'Not Yet' if lastWonRound == 0 else current_round - lastWonRound}{'' if lastWonRound == 0 else ' rounds ago'} ({lastWonRound})"  if beeMode == 'full' else NA_NFM,
     "Last Frozen Round": f"{'Not Yet' if lastFrozenRound == 0 else current_round - lastFrozenRound}{'' if lastFrozenRound == 0 else ' rounds ago'} ({lastFrozenRound})" if beeMode == 'full' else NA_NFM,
     "Last Selected Round": f"{'Not Yet' if lastSelectedRound == 0 else current_round - lastSelectedRound}{'' if lastSelectedRound == 0 else ' rounds ago'} ({lastSelectedRound})" if beeMode == 'full' else NA_NFM,
-    "Last Sample Duration": f"{lastSampleDuration / 60000000000:.1f} minutes"  if lastSampleDuration > 0  else "Not Yet (0)" if beeMode == 'full' else NA_NFM,
+    "Last Sample Duration": f"{lastSampleDuration / 60:.1f} minutes"  if lastSampleDuration > 0  else "Not Yet (0)" if beeMode == 'full' else NA_NFM,
     "Rewards Collected": f"{format(float(reward) / 1e16, '.2f')} BZZ" if beeMode == 'full' else NA_NFM,
 }
 
