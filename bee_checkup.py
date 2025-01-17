@@ -69,6 +69,7 @@ peers_data = requests.get(peers_url).json()
 neighborhoodSize = peers_data["snapshots"][-1]["neighborhoodSize"]
 
 NA_NFM = "N.A (except in Full Mode)"
+NA_NLFM = "N.A (except in Light or Full Mode)"
 # Fetch redistribution state
 
 if(beeMode == 'full'):
@@ -108,7 +109,11 @@ reachability = topology_data["reachability"]
 # Fetch stake
 stake_url = f"{bee_debug_api_url}/stake"
 stake_data = requests.get(stake_url).json()
-stakedAmount = float(stake_data["stakedAmount"]) / 10**16
+stakedAmount = NA_NLFM
+try:
+    stakedAmount = float(stake_data["stakedAmount"]) / 10**16
+except:
+    pass
 
 # Fetch reservestate
 reservestate_url = f"{bee_debug_api_url}/reservestate"
@@ -118,10 +123,17 @@ storageRadius = reservestate_data["storageRadius"]
 
 # Fetch wallet
 wallet_url = f"{bee_debug_api_url}/wallet"
-wallet_data = requests.get(wallet_url).json()
-bzzBalance = round((float(wallet_data["bzzBalance"]) / 10**16), 2)
-nativeTokenBalance = round((float(wallet_data["nativeTokenBalance"]) / 10**18), 2)
-walletAddress = wallet_data["walletAddress"]
+bzzBalance = NA_NLFM
+walletAddress = NA_NLFM
+nativeTokenBalance = NA_NLFM
+
+try:
+    wallet_data = requests.get(wallet_url).json()
+    bzzBalance = round((float(wallet_data["bzzBalance"]) / 10**16), 2)
+    nativeTokenBalance = round((float(wallet_data["nativeTokenBalance"]) / 10**18), 2)
+    walletAddress = wallet_data["walletAddress"]
+except:
+    pass
 
 # Fetch health
 health_url = f"{bee_debug_api_url}/health"
@@ -197,6 +209,27 @@ hint = {
     "Rewards Collected": "",
 }
 
+if beeMode == 'full':
+    if stakedAmount >= 10:
+        stakedAmount = f"✅ {stakedAmount} xBZZ"
+    else:
+        stakedAmount = f"🟡 {stakedAmount} BZZ"
+
+xDaiAmount = NA_NLFM 
+
+if isinstance(nativeTokenBalance, (int, float)): 
+    if nativeTokenBalance >= 0.1:
+        xDaiAmount = f"✅ {nativeTokenBalance} xDAI"
+    else:
+        xDaiAmount = f"🟡 {nativeTokenBalance} xDAI"
+
+xBzzAmount = NA_NLFM
+if isinstance(bzzBalance, (int, float)): 
+    if bzzBalance >= 1:
+        xBzzAmount = f"✅ {bzzBalance} xBZZ"
+    else:
+        xBzzAmount = f"🟡 {bzzBalance} xBZZ"
+
 row = {
     "[cyan]NODE[/cyan]": "",
     "Wallet": f"{walletAddress[2:5]}...{walletAddress[-3:]}",
@@ -213,9 +246,9 @@ row = {
     "Reachable": get_bool(reachability, True),
     "Depth": f"✅ {depth}" if depth == network_depth else f"🟡 {depth}",
     "Storage Radius": f"✅ {storageRadius}" if storageRadius == network_depth else f"🟡 {storageRadius}" if beeMode == 'full' else NA_NFM,
-    "Staked Amount": f"✅ {stakedAmount} xBZZ" if stakedAmount >= 10 else f"🟡 {stakedAmount} BZZ" if beeMode == 'full' else NA_NFM,
-    "xDAI": f"✅ {nativeTokenBalance} xDAI" if nativeTokenBalance >= 0.1 else f"🟡 {nativeTokenBalance} xDAI",
-    "xBZZ": f"✅ {bzzBalance} xBZZ" if bzzBalance >= 1 else f"🟡 {bzzBalance} xBZZ",
+    "Staked Amount": stakedAmount,
+    "xDAI": xDaiAmount, #f"✅ {nativeTokenBalance} xDAI" if isinstance(nativeTokenBalance, (int, float)) and nativeTokenBalance >= 0.1 else f"🟡 {nativeTokenBalance} xDAI",
+    "xBZZ": xBzzAmount, #f"✅ {bzzBalance} xBZZ" if isinstance(bzzBalance, (int, float)) and  bzzBalance >= 1 else f"🟡 {bzzBalance} xBZZ",
     "Neighborhood Size": neighborhoodSize,
     "Reserve Size": f"{(reserveSize * 4) / 1000 / 1000 :.3f} GB ({reserveSize} chunks)",
     "[cyan]LOTTERY[/cyan]": "",
